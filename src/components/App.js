@@ -1,83 +1,47 @@
 import React, { useState } from "react";
 import "./../styles/App.css";
-
+import ListItem from "./ListItem";
 function App() {
-  const [text, setText] = useState("");
-  const [textArray, settextArray] = useState([]);
-  const [edit, setEdit] = useState(false);
-  const [savetext, setsavetext] = useState("");
-  const [customid, setid] = useState();
-  const handleButton = () => {
-    let obj = {};
+  const [items, setItems] = useState([]);
+  const [newItem, setNewItem] = useState("");
+  const addItem = () => {
+    items.push(newItem);
+    setItems([...items]);
 
-    obj.para = text;
-    let copyArray = textArray.slice();
-    copyArray.push(obj);
-    settextArray(copyArray);
+    setNewItem("");
+  };
+  const newItemChanged = (evt) => {
+    setNewItem(evt.target.value);
+  };
+  const deleteHandler = (itemIdx) => {
+    items.splice(itemIdx, 1);
+    setItems([...items]);
+  };
+  const editHandler = (editedValue, itemIdx) => {
+    items[itemIdx] = editedValue;
+    setItems([...items]);
+  };
 
-    setText("");
-  };
-  const handleDelete = (id) => {
-    const arr = textArray.slice();
-    const filteredArray = arr.filter((item, index) => index !== id);
-    settextArray(filteredArray);
-  };
-  const handleSave = (id) => {
-    if (savetext !== "") {
-      let copyarr = textArray.slice();
-      copyarr[id].para = savetext;
-      settextArray(copyarr);
-      setEdit(false);
-    }
-  };
   return (
-    <div id="main" className="main">
+    <div id="main">
       <textarea
         id="task"
-        value={text}
-        rows="1"
-        cols="20"
-        type="text"
-        onChange={(e) => setText(e.target.value)}
+        onChange={newItemChanged}
+        placeholder="New Item"
+        value={newItem}
       ></textarea>
-      <button id="btn" onClick={text ? handleButton : null}>
-        Add todo
+      <button id="btn" onClick={addItem} disabled={newItem.trim().length === 0}>
+        Add Item
       </button>
-      {textArray.map((item, index) => (
-        <div className="list" key={index}>
-          <p>{item.para}</p>
-          <span>
-            <button
-              className="edit"
-              onClick={(event) => {
-                setEdit(true);
-                setid(index);
-              }}
-            >
-              edit
-            </button>
-          </span>
-          <span>
-            <button className="delete" onClick={(event) => handleDelete(index)}>
-              delete
-            </button>
-          </span>
-        </div>
+      {items.map((item, idx) => (
+        <ListItem
+          item={item}
+          editHandler={editHandler}
+          key={`${item}_${idx}`}
+          idx={idx}
+          deleteHandler={deleteHandler}
+        />
       ))}
-      {edit && (
-        <>
-          <textarea
-            className="editTask"
-            onChange={(e) => setsavetext(e.target.value)}
-          ></textarea>
-          <button
-            className="saveTask"
-            onClick={(event) => handleSave(customid)}
-          >
-            save
-          </button>
-        </>
-      )}
     </div>
   );
 }
